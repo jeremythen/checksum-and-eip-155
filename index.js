@@ -46,7 +46,7 @@ export function checkSumAddress(address, chainId) {
 }
 
 const addressWithNoChecksum = '3a29282d5144cea68cb33995ce82212f4b21ccec';
-const checkSummedFromMetamaskWe3AndEtherScan = '3A29282d5144cEa68cb33995Ce82212f4B21ccEc';
+const checkSummedFromMetamask = '3A29282d5144cEa68cb33995Ce82212f4B21ccEc';
 const checkSummedFromRskBlockExplorer = '3a29282D5144cea68Cb33995cE82212F4B21CcEC';
 
 // RSK implements EIP-1991, so we send a chain id and use the 0x prefix.
@@ -54,7 +54,9 @@ const resultForRsk = checkSumAddress(addressWithNoChecksum, 31);
 
 // Ethereum clients (Metamask, Web3js, etc) don't implement EIP-1991,
 // so we don't use a chainId nor the 0x prefix.
-const resultForMetamaskWeb3AndEtherscan = checkSumAddress(addressWithNoChecksum, '');
+const resultForMetamask = checkSumAddress(addressWithNoChecksum, '');
 
 console.log('checkSummedFromRskBlockExplorer === resultForRsk: ', checkSummedFromRskBlockExplorer === resultForRsk); // true
-console.log('checkSummedFromMetamaskWe3AndEtherScan === resultForMetamaskWeb3AndEtherscan: ', checkSummedFromMetamaskWe3AndEtherScan === resultForMetamaskWeb3AndEtherscan); // true
+console.log('checkSummedFromMetamask === resultForMetamask: ', checkSummedFromMetamask === resultForMetamask); // true
+console.log('resultForRsk === resultForMetamask: ', resultForRsk === resultForMetamask); // false, because the
+// checksum for the same address for different chains would be different.
