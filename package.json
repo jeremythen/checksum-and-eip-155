@@ -1,6 +1,6 @@
 {
   "type": "module",
-  "name": "checksum-and-eip-1191",
+  "name": "emv-checksum-address-convertor",
   "version": "1.0.0",
   "description": "Checksummed addresses and EIP-1191",
   "main": "index.js",
