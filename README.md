@@ -1,4 +1,4 @@
-# Checksummed addresses and EIP-55
+# evm-checksum-address-converter
 
 This is a simple non-checksummed to checksummed EVM addresses conversion tool that implements [EIP-55](https://github.com/ethereum/EIPs/blob/master/EIPS/eip-55.md)
 
