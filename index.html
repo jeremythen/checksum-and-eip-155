@@ -26,8 +26,12 @@
             </div>
             <p>Paste non-checksummed addresses here:</p>
             <div>
-                <input type="checkbox" id="addressesInArray" name="addressInArray" onclick="changeConversionType(this)">
+                <input type="checkbox" id="addressesInArray" name="addressInArray" onclick="handlePlaceholders()">
                 <label for="addressesInArray" title="Do you have a list of non-checksummed addresses in an array like: [0xa1..., 0xa2...]? Check this box.">Addresses in array?</label><br>
+
+                <input checked type="checkbox" id="solidityAddress" name="solidityAddress" onclick="handlePlaceholders()">
+                <label for="solidityAddress" title="Does your address is a Solidity address (0x...)or a Javascript address (&quot;0x...&quot;)?">Solidity Address?</label><br>
+
             </div>
             <textarea id="addresses" name="addresses" rows="20" cols="80" placeholder=""></textarea>
 
@@ -66,35 +70,73 @@
         const nonChecksummedArrayPlaceholderExample = "[0x6827b8f6cc60497d9bf5210d602c0ecafdf7c405,\n0x66b0b1d2930059407dcc30f1a2305435fc37315e]";
         const checksummedArrayPlaceholderExample = "[0x6827b8f6cc60497d9bf5210d602C0EcaFDF7C405,\n0x66B0b1d2930059407DcC30F1A2305435fc37315E]";
 
+        const nonChecksummedPlaceholderExampleJsFormat = "\"0x6827b8f6cc60497d9bf5210d602c0ecafdf7c405\"\n\"0x66b0b1d2930059407dcc30f1a2305435fc37315e\"";
+        const checksummedPlaceholderExampleJsFormat = "\"0x6827b8f6cc60497d9bf5210d602C0EcaFDF7C405\"\n\"0x66B0b1d2930059407DcC30F1A2305435fc37315E\"";
+
+        const nonChecksummedArrayPlaceholderExampleJsFormat = "[\"0x6827b8f6cc60497d9bf5210d602c0ecafdf7c405\",\n\"0x66b0b1d2930059407dcc30f1a2305435fc37315e\"]";
+        const checksummedArrayPlaceholderExampleJsFormat = "[\"0x6827b8f6cc60497d9bf5210d602C0EcaFDF7C405\",\n\"0x66B0b1d2930059407DcC30F1A2305435fc37315E\"]";
+
         addresses.placeholder = nonChecksummedPlaceholderExample;
         checksummedAddresses.placeholder = checksummedPlaceholderExample;
 
-        function changeConversionType(elem) {
-            if(elem.checked) {
+        function handlePlaceholders() {
+
+            if(addressesInArray.checked && solidityAddress.checked) {
                 addresses.placeholder = nonChecksummedArrayPlaceholderExample;
                 checksummedAddresses.placeholder = checksummedArrayPlaceholderExample;
-            } else {
+            } else if(addressesInArray.checked && !solidityAddress.checked) {
+                addresses.placeholder = nonChecksummedArrayPlaceholderExampleJsFormat;
+                checksummedAddresses.placeholder = checksummedArrayPlaceholderExampleJsFormat;
+            } else if(!addressesInArray.checked && solidityAddress.checked) {
                 addresses.placeholder = nonChecksummedPlaceholderExample;
                 checksummedAddresses.placeholder = checksummedPlaceholderExample;
+            } else if(!addressesInArray.checked && !solidityAddress.checked) {
+                addresses.placeholder = nonChecksummedPlaceholderExampleJsFormat;
+                checksummedAddresses.placeholder = checksummedPlaceholderExampleJsFormat;
             }
+
         }
 
         function convert() {
 
-            const addressesInArray = document.getElementById("addressesInArray").checked;
+            try {
 
-            const addressesTextarea = document.getElementById("addresses");
+                checksummedAddresses.value = "";
 
-            const addresses = addressesInArray ? addressesTextarea.value.replaceAll(/[\[\]\n\s]+/g,"").split(',') : addressesTextarea.value.split('\n');
+                const addressesTextarea = document.getElementById("addresses");
 
-            const checkSummedAddresses = addresses.map(address => `0x${checkSumAddress(address, chainId.value)}`);
+                let addresses;
 
-            console.log("checkSummedAddresses: ", checkSummedAddresses)
+                if(addressesInArray.checked && solidityAddress.checked) { // HandlingSolidity array of addresses
+                    addresses = addressesTextarea.value.replaceAll(/[\[\]\n\s]+/g,"").split(',');
+                } else if(!addressesInArray.checked && solidityAddress.checked) { // Handling Solidity addresses
+                    addresses = addressesTextarea.value.split('\n');
+                } else if(addressesInArray.checked && !solidityAddress.checked) { // Handling Javascript/JSON array of addresses
+                    addresses = JSON.parse(addressesTextarea.value);
+                } else if(!addressesInArray.checked && !solidityAddress.checked) { // Handling Javascript/JSON addresses
+                    addresses = addressesTextarea.value.replaceAll(/\"+/g,"").split('\n');
+                }
 
-            if(addressesInArray) {
-                checksummedAddresses.value = JSON.stringify(checkSummedAddresses).replaceAll("\"", '');
-            } else {
-                checksummedAddresses.value = checkSummedAddresses.map(address => address).join('\n');
+                const checkSummedAddresses = addresses.map(address => `0x${checkSumAddress(address, chainId.value)}`);
+
+                if(addressesInArray.checked) {
+                    if(solidityAddress.checked) {
+                        checksummedAddresses.value = JSON.stringify(checkSummedAddresses).replaceAll("\"", '');
+                    } else {
+                        checksummedAddresses.value = JSON.stringify(checkSummedAddresses);
+                    }
+                } else {
+                    if(solidityAddress.checked) {
+                        checksummedAddresses.value = checkSummedAddresses.map(address => address).join('\n');
+                    } else {
+                        checksummedAddresses.value = checkSummedAddresses.map(address => `"${address}"`).join('\n');
+                    }
+                }
+
+            } catch(e) {
+                alert("There was an error. Check the console: " + e.message);
+                console.error(e);
+                console.warn("Make sure to use the checkboxes 'Addresses in array?' and `Solidity Address?` correctly.");
             }
 
         }
@@ -110,6 +152,13 @@
             if (address.startsWith("0x")) {
                 address = address.slice(2);
             }
+
+            const isValidEthereumAddressRegex = /^[0-9a-f]{40}$/;
+
+            if(!isValidEthereumAddressRegex.test(address)) {
+                throw new Error("Ethereum address format is not a valid.");
+            }
+
             const addressHash = hashAddress(address, chainId);
             const addressChars = address.split("");
             for (let i = 0; i < addressChars.length; i++) {

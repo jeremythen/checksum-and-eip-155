@@ -27,6 +27,13 @@ export function checkSumAddress(address, chainId) {
   if (address.startsWith("0x")) {
     address = address.slice(2);
   }
+
+  const isValidEthereumAddressRegex = /^[0-9a-f]{40}$/;
+
+  if(!isValidEthereumAddressRegex.test(address)) {
+      throw new Error("Ethereum address format is not a valid.");
+  }
+
   const addressHash = hashAddress(address, chainId);
   const addressChars = address.split("");
   for (let i = 0; i < addressChars.length; i++) {

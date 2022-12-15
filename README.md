@@ -45,6 +45,43 @@ Then remember to check the checkbox `Addresses in array?`. This way it returns a
 0x66B0b1d2930059407DcC30F1A2305435fc37315E]
 ```
 
+If you uncheck the `Solidity Address` checkbox, then it means that you have your addresses in a JSON/Javascript format, surrounded by double quotes "0x...":
+
+`Addresses in array?` -> unchecked
+`Solidity Address?` -> unchecked
+
+Input:
+
+```json
+"0x6827b8f6cc60497d9bf5210d602c0ecafdf7c405"
+"0x66b0b1d2930059407dcc30f1a2305435fc37315e"
+```
+
+Output:
+
+```json
+"0x6827b8f6cc60497d9bf5210d602C0EcaFDF7C405"
+"0x66B0b1d2930059407DcC30F1A2305435fc37315E"
+```
+
+
+`Addresses in array?` -> checked
+`Solidity Address?` -> unchecked
+
+Input:
+
+```json
+["0x6827b8f6cc60497d9bf5210d602c0ecafdf7c405",
+"0x66b0b1d2930059407dcc30f1a2305435fc37315e"]
+```
+
+Output:
+
+```json
+["0x6827b8f6cc60497d9bf5210d602C0EcaFDF7C405",
+"0x66B0b1d2930059407DcC30F1A2305435fc37315E"]
+```
+
 ## Backend tool
 
 To use the tool in Nodejs, simply install the `sha3` dependency with:
