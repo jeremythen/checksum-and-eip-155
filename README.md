@@ -6,6 +6,8 @@ To learn more about checksummed addresses, check this article:
 
 [Ethereum checksummed addresses, importance, and implementation](https://medium.com/coinmonks/ethereum-checksummed-addresses-importance-and-implementation-eef74aa3ae18)
 
+To easily preview and use the tool online, [click here](https://htmlpreview.github.io/?https://github.com/jeremythen/evm-checksum-address-converter/blob/main/index.html)
+
 ## Frontend tool
 
 To use the frontend tool, open the `index.html` file in a browser.
